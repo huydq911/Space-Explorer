@@ -15,11 +15,12 @@ public class Asteroid : MonoBehaviour
     public float maxSize = 1.65f;
     public float movementSpeed = 50f;
     public float maxLifetime = 30f;
-
+    AudioManager audioManager;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     private void Start()
@@ -55,11 +56,10 @@ public class Asteroid : MonoBehaviour
                 CreateSplit();
                 CreateSplit();
             }
-
             GameManager.Instance.OnAsteroidDestroyed(this);
-
             // Destroy the current asteroid since it is either replaced by two
             // new asteroids or small enough to be destroyed by the bullet
+            audioManager.PlaySFX(audioManager.explosion);
             Destroy(gameObject);
         }
     }

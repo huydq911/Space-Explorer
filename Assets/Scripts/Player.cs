@@ -21,9 +21,12 @@ public class Player : MonoBehaviour
     public bool screenWrapping = true;
     private Bounds screenBounds;
 
+    AudioManager audioManager;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     private void Start()
@@ -31,7 +34,8 @@ public class Player : MonoBehaviour
         GameObject[] boundaries = GameObject.FindGameObjectsWithTag("Boundary");
 
         // Disable all boundaries if screen wrapping is enabled
-        for (int i = 0; i < boundaries.Length; i++) {
+        for (int i = 0; i < boundaries.Length; i++)
+        {
             boundaries[i].SetActive(!screenWrapping);
         }
 
@@ -53,30 +57,39 @@ public class Player : MonoBehaviour
     {
         thrusting = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        {
             turnDirection = 1f;
-        } else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
+        }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
             turnDirection = -1f;
-        } else {
+        }
+        else
+        {
             turnDirection = 0f;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        {
             Shoot();
         }
     }
 
     private void FixedUpdate()
     {
-        if (thrusting) {
+        if (thrusting)
+        {
             rb.AddForce(transform.up * thrustSpeed);
         }
 
-        if (turnDirection != 0f) {
+        if (turnDirection != 0f)
+        {
             rb.AddTorque(rotationSpeed * turnDirection);
         }
 
-        if (screenWrapping) {
+        if (screenWrapping)
+        {
             ScreenWrap();
         }
     }
@@ -84,16 +97,20 @@ public class Player : MonoBehaviour
     private void ScreenWrap()
     {
         // Move to the opposite side of the screen if the player exceeds the bounds
-        if (rb.position.x > screenBounds.max.x + 0.5f) {
+        if (rb.position.x > screenBounds.max.x + 0.5f)
+        {
             rb.position = new Vector2(screenBounds.min.x - 0.5f, rb.position.y);
         }
-        else if (rb.position.x < screenBounds.min.x - 0.5f) {
+        else if (rb.position.x < screenBounds.min.x - 0.5f)
+        {
             rb.position = new Vector2(screenBounds.max.x + 0.5f, rb.position.y);
         }
-        else if (rb.position.y > screenBounds.max.y + 0.5f) {
+        else if (rb.position.y > screenBounds.max.y + 0.5f)
+        {
             rb.position = new Vector2(rb.position.x, screenBounds.min.y - 0.5f);
         }
-        else if (rb.position.y < screenBounds.min.y - 0.5f) {
+        else if (rb.position.y < screenBounds.min.y - 0.5f)
+        {
             rb.position = new Vector2(rb.position.x, screenBounds.max.y + 0.5f);
         }
     }
@@ -102,6 +119,7 @@ public class Player : MonoBehaviour
     {
         Bullet bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
         bullet.Shoot(transform.up);
+        audioManager.PlaySFX(audioManager.shoot);
     }
 
     private void TurnOffCollisions()
@@ -120,7 +138,7 @@ public class Player : MonoBehaviour
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = 0f;
-
+            audioManager.PlaySFX(audioManager.explosion);
             GameManager.Instance.OnPlayerDeath(this);
         }
     }
